@@ -9,6 +9,7 @@ output: html_document
 
 # retrieving ME unemployment data
 
+
 library(blscrapeR)
 library(tidyverse)
 library(dplyr)
@@ -59,20 +60,21 @@ ME_labor$fips
 data <- merge(x = ME_labor, y = br, all = TRUE)
 View(data)
 
-data_lm <- lm(data$unemployed ~ data$DECK_COND_058 + data$SUPERSTRUCTURE_COND_059 + 
+data_lm <- lm(data$labor_force ~ data$DECK_COND_058 + data$SUPERSTRUCTURE_COND_059 + 
                       data$SUBSTRUCTURE_COND_060)
 summary(data_lm)
 
 ```
 
-The multiple R-squared value is 0.04671, and the adjusted R-squared value is 0.03657 with a p value of 
-p = 1.313e-15. While highly significant, this indcates that the combined variables superstructure
-condition, substructure condition, and deck condition in 2018 only explain at best 4.671% of the variation in unemployment in Maine in 2019. It is possible that the condition of the bridge was not the deciding factor when labor forces were allocated in Maine.
+The multiple R-squared value is 0.0511, and the adjusted R-squared value is 0.04102 with a p value of 
+p = 1.319e-15. While highly significant, this indcates that the combined variables superstructure
+condition, substructure condition, and deck condition in 2018 only explain at best 5.11% of the variation in labor force in Maine in 2019. It is possible that the condition of the bridge was not the deciding factor when labor forces were allocated in Maine. It is possible that other variables, such as daily traffic, gave less deteriorated bridges higher priority. If this is the case, a greater proportion of the labor force would be allocated to less deteriorated bridges and traffic would be the variable that best explains labor force allocation.
 
 ```{r}
 
 data_lm_rate <- lm(data$unemployed_rate ~ data$DECK_COND_058 + data$SUPERSTRUCTURE_COND_059 + 
                       data$SUBSTRUCTURE_COND_060)
+
 summary(data_lm_rate)
 ```
 
@@ -87,3 +89,4 @@ data_lm_rate_ <- lm(data$unemployed_rate ~ data$DECK_COND_058 + data$SUPERSTRUCT
                       data$SUBSTRUCTURE_COND_060 + 2.7)
 summary(data_lm_rate_)
 ```
+
