@@ -1,0 +1,70 @@
+---
+title: "Bridges and Labor Assignment"
+author: "Jillian Schat"
+date: "2/26/2020"
+output: html_document
+---
+
+```{r}
+
+# retrieving WI unemployment data
+
+library(blscrapeR)
+library(tidyverse)
+library(dplyr)
+library(data.table)
+library(magrittr)
+library(ggplot2)
+
+# preparing unemployment data
+
+df <- get_bls_county()
+ME_labor = df %>% filter(fips_state == 23)
+View(ME_labor)
+
+# retrieving WI bridge data
+
+"https://www.fhwa.dot.gov/bridge/nbi/2012/delimited/ME18.txt"
+state = "ME"
+year = "18"
+URL = paste0("https://www.fhwa.dot.gov/bridge/nbi/20",
+       year,
+       "/delimited/",
+       state,
+       year,
+       ".txt")
+ME_bridges = fread(URL)
+
+# now making fips column in bridges data
+
+br = ME_bridges %>%
+        as_tibble() %>%
+        select(STATE_CODE_001,
+               COUNTY_CODE_003,
+               contains("COND")) %>%
+        mutate(fips = STATE_CODE_001*1000 + COUNTY_CODE_003)
+
+View(br)
+
+# joining labor data with bridges data
+
+ME_labor$fips
+# b/c ME fips data is a character
+MEfips <- as.numeric(ME_labor$fips)
+ME_labor$fips <- MEfips
+ME_labor$fips
+
+?left_join
+
+data <- merge(x = ME_labor, y = br, all = TRUE)
+View(data)
+
+data_lm <- lm(data$labor_force ~ data$DECK_COND_058 + data$SUPERSTRUCTURE_COND_059 + 
+                      data$SUBSTRUCTURE_COND_060)
+summary(data_lm)
+
+```
+
+The multiple R-squared value is 0.0511, and the adjusted R-squared value is 0.04102 with a p value of 
+p = 1.319e-15. While highly significant, this indcates that the combined variables superstructure
+condition, substructure condition, and deck condition in 2018 only explain at best 5.11% of the variation in labor force in Maine in 2019. It is possible that the condition of the bridge was not the deciding factor when labor forces were allocated in Maine. It is possible that other variables, such as daily traffic, gave less deteriorated bridges higher priority. If this is the case, a greater proportion of the labor force would be allocated to less deteriorated bridges and traffic would be the variable that best explains labor force allocation.
